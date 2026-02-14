@@ -188,29 +188,36 @@ function calculateLineCoverage(
       continue;
     }
 
-    // Calculate coverage for changed lines
+    // Calculate coverage for changed lines (only count executable lines)
     const changedLinesArray = Array.from(changedLineSet);
-    const coveredChangedLines = changedLinesArray.filter(lineNum =>
+
+    // Filter to only executable lines (ignore comments, blank lines, etc.)
+    const executableChangedLines = changedLinesArray.filter(lineNum =>
+      fileCoverage!.executableLines.has(lineNum)
+    );
+
+    const coveredChangedLines = executableChangedLines.filter(lineNum =>
       fileCoverage!.coveredLines.has(lineNum)
     );
-    const uncoveredLines = changedLinesArray
+
+    const uncoveredLines = executableChangedLines
       .filter(lineNum => !fileCoverage!.coveredLines.has(lineNum))
       .sort((a, b) => a - b);
 
     const coveragePercentage =
-      changedLineSet.size > 0
-        ? (coveredChangedLines.length / changedLineSet.size) * 100
+      executableChangedLines.length > 0
+        ? (coveredChangedLines.length / executableChangedLines.length) * 100
         : 100;
 
     fileResults.push({
       file,
-      totalChangedLines: changedLineSet.size,
+      totalChangedLines: executableChangedLines.length,
       coveredChangedLines: coveredChangedLines.length,
       uncoveredLines,
       coveragePercentage,
     });
 
-    totalChangedLines += changedLineSet.size;
+    totalChangedLines += executableChangedLines.length;
     totalCoveredLines += coveredChangedLines.length;
   }
 
