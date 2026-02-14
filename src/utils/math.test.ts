@@ -1,4 +1,4 @@
-import { add, subtract, multiply, divide, power, square, factorial, isPrime } from './math';
+import { add, subtract, multiply, divide, power, square, factorial, isPrime, gcd } from './math';
 
 describe('Math utilities', () => {
   describe('add', () => {
@@ -99,6 +99,37 @@ describe('Math utilities', () => {
     it('identifies non-prime numbers', () => {
       expect(isPrime(4)).toBe(false);
       expect(isPrime(1)).toBe(false);
+    });
+  });
+
+  describe('gcd', () => {
+    it('calculates GCD of two positive numbers', () => {
+      expect(gcd(48, 18)).toBe(6);
+      expect(gcd(100, 25)).toBe(25);
+    });
+
+    it('returns the non-zero number when one number is zero', () => {
+      expect(gcd(42, 0)).toBe(42);
+      expect(gcd(0, 17)).toBe(17);
+    });
+
+    it('returns 1 for coprime numbers', () => {
+      expect(gcd(17, 19)).toBe(1);
+      expect(gcd(13, 7)).toBe(1);
+    });
+
+    it('throws error for negative numbers', () => {
+      expect(() => gcd(-5, 10)).toThrow('GCD is not defined for negative numbers');
+      expect(() => gcd(10, -5)).toThrow('GCD is not defined for negative numbers');
+      expect(() => gcd(-5, -10)).toThrow('GCD is not defined for negative numbers');
+    });
+
+    it('handles same numbers', () => {
+      expect(gcd(12, 12)).toBe(12);
+    });
+
+    it('handles when first number is smaller', () => {
+      expect(gcd(18, 48)).toBe(6);
     });
   });
 });
