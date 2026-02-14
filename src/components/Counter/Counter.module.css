@@ -1,0 +1,37 @@
+.counter {
+  padding: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin: 1rem 0;
+  background-color: #f9f9f9;
+}
+
+.counter h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.buttons button {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  border: 1px solid #007bff;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttons button:hover {
+  background-color: #0056b3;
+}
+
+.buttons button:active {
+  transform: translateY(1px);
+}
