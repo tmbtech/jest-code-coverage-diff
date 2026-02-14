@@ -295,19 +295,47 @@ function generateMarkdownReport(summary: CoverageSummary): string {
 }
 
 /**
- * Posts comment to GitHub PR (if running in CI)
+ * Generates annotations for uncovered lines
  */
-async function postGitHubComment(markdown: string): Promise<void> {
-  const token = process.env.GITHUB_TOKEN;
-  const prNumber = process.env.PR_NUMBER;
+function generateAnnotations(summary: CoverageSummary) {
+  const annotations: Array<{
+    path: string;
+    start_line: number;
+    end_line: number;
+    annotation_level: 'warning' | 'failure';
+    message: string;
+  }> = [];
 
-  if (!token || !prNumber) {
-    console.log('ℹ️  Not running in GitHub Actions PR context, skipping comment posting');
+  for (const fileResult of summary.fileResults) {
+    for (const lineNum of fileResult.uncoveredLines) {
+      annotations.push({
+        path: fileResult.file,
+        start_line: lineNum,
+        end_line: lineNum,
+        annotation_level: 'warning',
+        message: `Line not covered by tests`,
+      });
+    }
+  }
+
+  // GitHub API limits annotations to 50 per request
+  return annotations.slice(0, 50);
+}
+
+/**
+ * Creates a GitHub Check Run with annotations (if running in CI)
+ */
+async function createCheckRun(summary: CoverageSummary, markdown: string): Promise<void> {
+  const token = process.env.GITHUB_TOKEN;
+  const headSha = process.env.HEAD_SHA;
+
+  if (!token || !headSha) {
+    console.log('ℹ️  Not running in GitHub Actions PR context, skipping check run creation');
     console.log('\n' + markdown);
     return;
   }
 
-  console.log('📝 Posting comment to GitHub PR...');
+  console.log('📝 Creating GitHub Check Run...');
 
   try {
     const { Octokit } = await import('@octokit/rest');
@@ -324,17 +352,31 @@ async function postGitHubComment(markdown: string): Promise<void> {
 
     const [, owner, repo] = match;
 
-    // Post the comment
-    await octokit.issues.createComment({
+    const annotations = generateAnnotations(summary);
+    const conclusion = summary.passed ? 'success' : 'failure';
+    const statusEmoji = summary.passed ? '✅' : '❌';
+    const title = summary.passed
+      ? `Coverage: ${summary.overallPercentage.toFixed(1)}% ${statusEmoji}`
+      : `Coverage: ${summary.overallPercentage.toFixed(1)}% (threshold: ${summary.threshold}%) ${statusEmoji}`;
+
+    // Create the check run
+    await octokit.checks.create({
       owner,
       repo: repo.replace('.git', ''),
-      issue_number: parseInt(prNumber, 10),
-      body: markdown,
+      name: 'Code Coverage (Changed Lines)',
+      head_sha: headSha,
+      status: 'completed',
+      conclusion,
+      output: {
+        title,
+        summary: markdown,
+        annotations,
+      },
     });
 
-    console.log('✅ Comment posted successfully');
+    console.log(`✅ Check run created successfully with ${annotations.length} annotations`);
   } catch (error) {
-    console.error('❌ Error posting comment to GitHub:', error);
+    console.error('❌ Error creating check run:', error);
     // Still output to console for debugging
     console.log('\n' + markdown);
   }
@@ -370,7 +412,7 @@ async function main() {
       passed: true,
     };
     const markdown = generateMarkdownReport(summary);
-    await postGitHubComment(markdown);
+    await createCheckRun(summary, markdown);
     process.exit(0);
   }
 
@@ -383,8 +425,8 @@ async function main() {
   // Generate report
   const markdown = generateMarkdownReport(summary);
 
-  // Post to GitHub (if in CI)
-  await postGitHubComment(markdown);
+  // Create check run on GitHub (if in CI)
+  await createCheckRun(summary, markdown);
 
   // Exit with appropriate code
   if (summary.passed) {
