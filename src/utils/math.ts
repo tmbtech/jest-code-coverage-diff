@@ -15,6 +15,10 @@ export const power = (base: number, exponent: number): number => {
   return Math.pow(base, exponent);
 };
 
+export const square = (n: number): number => {
+  return n * n;
+};
+
 // The following functions are intentionally left untested to demonstrate partial coverage
 
 export const factorial = (n: number): number => {
