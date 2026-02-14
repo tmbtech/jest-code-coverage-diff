@@ -41,3 +41,37 @@ export const isPrime = (num: number): boolean => {
   }
   return true;
 };
+
+/**
+ * Calculates the Greatest Common Divisor (GCD) of two numbers
+ * using the Euclidean algorithm.
+ *
+ * The GCD is the largest positive integer that divides both numbers
+ * without a remainder. This function uses recursion to efficiently
+ * compute the result.
+ *
+ * @param a - The first positive integer
+ * @param b - The second positive integer
+ * @returns The greatest common divisor of a and b
+ * @throws Error if either input is negative
+ *
+ * @example
+ * gcd(48, 18) // returns 6
+ * gcd(100, 25) // returns 25
+ * gcd(17, 19) // returns 1 (coprime numbers)
+ */
+export const gcd = (a: number, b: number): number => {
+  // Validate inputs - GCD is only defined for non-negative integers
+  if (a < 0 || b < 0) {
+    throw new Error('GCD is not defined for negative numbers');
+  }
+
+  // Base case: if b is 0, the GCD is a
+  if (b === 0) {
+    return a;
+  }
+
+  // Recursive case: apply Euclidean algorithm
+  // gcd(a, b) = gcd(b, a mod b)
+  return gcd(b, a % b);
+};
