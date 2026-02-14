@@ -60,11 +60,13 @@ function parseGitDiff(baseRef: string = 'main'): GitDiffResult {
       }
     }
 
-    // Filter out non-source files
+    // Filter out non-source files (tests, type definitions, scripts, config files)
     const sourceFiles = Array.from(changedLines.keys()).filter(file =>
       file.match(/\.(ts|tsx|js|jsx)$/) &&
       !file.match(/\.test\.(ts|tsx|js|jsx)$/) &&
-      !file.includes('.d.ts')
+      !file.includes('.d.ts') &&
+      !file.startsWith('scripts/') &&
+      !file.startsWith('__mocks__/')
     );
 
     const filteredChangedLines = new Map<string, Set<number>>();
