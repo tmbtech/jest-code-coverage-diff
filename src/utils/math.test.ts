@@ -1,4 +1,4 @@
-import { add, subtract, multiply, divide, power, square } from './math';
+import { add, subtract, multiply, divide, power, square, factorial, isPrime } from './math';
 
 describe('Math utilities', () => {
   describe('add', () => {
@@ -77,7 +77,28 @@ describe('Math utilities', () => {
     });
   });
 
-  // factorial and isPrime are intentionally not tested
-  // This demonstrates partial coverage (~60%)
-  // Future PRs can add tests for these functions to show coverage improvement
+  // Minimal tests added to meet coverage threshold
+  // Some edge cases intentionally left untested to demonstrate partial coverage
+  describe('factorial', () => {
+    it('calculates factorial of positive numbers', () => {
+      expect(factorial(5)).toBe(120);
+      expect(factorial(0)).toBe(1);
+    });
+
+    it('throws error for negative numbers', () => {
+      expect(() => factorial(-1)).toThrow('Factorial of negative number is undefined');
+    });
+  });
+
+  describe('isPrime', () => {
+    it('identifies prime numbers', () => {
+      expect(isPrime(2)).toBe(true);
+      expect(isPrime(7)).toBe(true);
+    });
+
+    it('identifies non-prime numbers', () => {
+      expect(isPrime(4)).toBe(false);
+      expect(isPrime(1)).toBe(false);
+    });
+  });
 });
