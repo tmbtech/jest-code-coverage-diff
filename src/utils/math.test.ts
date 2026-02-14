@@ -1,4 +1,4 @@
-import { add, subtract, multiply, divide, power } from './math';
+import { add, subtract, multiply, divide, power, square } from './math';
 
 describe('Math utilities', () => {
   describe('add', () => {
@@ -56,6 +56,24 @@ describe('Math utilities', () => {
 
     it('handles power of one', () => {
       expect(power(5, 1)).toBe(5);
+    });
+  });
+
+  describe('square', () => {
+    it('squares a positive number', () => {
+      expect(square(5)).toBe(25);
+    });
+
+    it('squares a negative number', () => {
+      expect(square(-4)).toBe(16);
+    });
+
+    it('squares zero', () => {
+      expect(square(0)).toBe(0);
+    });
+
+    it('squares a decimal number', () => {
+      expect(square(2.5)).toBe(6.25);
     });
   });
 
